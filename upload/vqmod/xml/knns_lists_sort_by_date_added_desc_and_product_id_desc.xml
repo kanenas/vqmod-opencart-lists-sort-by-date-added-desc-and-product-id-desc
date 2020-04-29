@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification
+	xmlns="https://github.com/vqmod/vqmod"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://github.com/vqmod/vqmod https://raw.githubusercontent.com/vqmod/vqmod/master/vqmod.xsd"
+	>
+	<id><![CDATA[[VQMOD] Default sort order by date_added DESC AND product_id DESC in all lists]]></id>
+	<version>1.0.0</version>
+	<vqmver>2.6.3</vqmver>
+	<author>kanenas.net (aka Nikolas Branis) - nbran@kanenas.net</author>
+	<file path="catalog/model/catalog/" name="product.php" error="log">
+		<operation error="skip">
+			<search position="replace"><![CDATA[$sql .= " ORDER BY " . $data['sort'];]]></search>
+			<add><![CDATA[$sql .= " ORDER BY p.date_added";]]></add>
+		</operation>
+		<operation error="skip">
+			<search position="replace"><![CDATA[$sql .= " ORDER BY p.sort_order";]]></search>
+			<add><![CDATA[$sql .= " ORDER BY p.date_added";]]></add>
+		</operation>
+		<operation error="skip">
+			<search position="replace"><![CDATA[$sql .= " ASC, LCASE(pd.name) ASC";]]></search>
+			<add><![CDATA[$sql .= " DESC , p.product_id DESC";]]></add>
+		</operation>
+		<!-- <operation error="skip">
+			<search position="replace" offset="4"><![CDATA[if (isset($data['order']) && ($data['order'] == 'DESC')) {]]></search>
+			<add><![CDATA[
+		if (isset($data['order']) && ($data['order'] == 'DESC')) {
+			$sql .= " DESC, LCASE(pd.name) DESC";
+		} else if (isset($data['order']) && ($data['order'] == 'ASC')) {
+			$sql .= " ASC, LCASE(pd.name) ASC";
+		} else {
+			$sql .= " DESC , p.product_id DESC";
+		}
+				]]></add>
+		</operation> -->
+	</file>
+</modification>
