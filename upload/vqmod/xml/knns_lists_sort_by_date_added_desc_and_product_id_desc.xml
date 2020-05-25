@@ -4,34 +4,40 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="https://github.com/vqmod/vqmod https://raw.githubusercontent.com/vqmod/vqmod/master/vqmod.xsd"
 	>
-	<id><![CDATA[[VQMOD] Default sort order by date_added DESC AND product_id DESC in all lists]]></id>
-	<version>1.0.0</version>
+	<id><![CDATA[[VQMOD] Mixed lists with default sort order by date_added DESC AND product_id DESC in all lists]]></id>
+	<version>1.1.0</version>
 	<vqmver>2.6.3</vqmver>
 	<author>kanenas.net (aka Nikolas Branis) - nbran@kanenas.net</author>
 	<file path="catalog/model/catalog/" name="product.php" error="log">
 		<operation error="skip">
+			<search position="replace"><![CDATA[$sql .= " FROM " . DB_PREFIX . "category_path cp LEFT JOIN " . DB_PREFIX . "product_to_category p2c ON (cp.category_id = p2c.category_id)";]]></search>
+			<add><![CDATA[
+				$sql .= " FROM " . DB_PREFIX . "category_path cp LEFT JOIN " . DB_PREFIX . "product_to_category_custom_order p2c ON (cp.category_id = p2c.category_id)";
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search position="replace"><![CDATA[$sql .= " FROM " . DB_PREFIX . "product_to_category p2c";]]></search>
+			<add><![CDATA[
+				$sql .= " FROM " . DB_PREFIX . "product_to_category_custom_order p2c";
+			]]></add>
+		</operation>
+		<operation error="skip">
 			<search position="replace"><![CDATA[$sql .= " ORDER BY " . $data['sort'];]]></search>
-			<add><![CDATA[$sql .= " ORDER BY p.date_added";]]></add>
+			<add><![CDATA[
+				if (!empty($data['filter_name']) || !empty($data['filter_manufacturer_id'])) {
+					$sql .= " ORDER BY " . $data['sort'];
+				} else {
+					$sql .= " ORDER BY p2c.custom_order_id";					
+				}
+			]]></add>
 		</operation>
 		<operation error="skip">
 			<search position="replace"><![CDATA[$sql .= " ORDER BY p.sort_order";]]></search>
-			<add><![CDATA[$sql .= " ORDER BY p.date_added";]]></add>
+			<add><![CDATA[$sql .= " ORDER BY p2c.custom_order_id";]]></add>
 		</operation>
 		<operation error="skip">
 			<search position="replace"><![CDATA[$sql .= " ASC, LCASE(pd.name) ASC";]]></search>
-			<add><![CDATA[$sql .= " DESC , p.product_id DESC";]]></add>
+			<add><![CDATA[$sql .= " ASC, p.product_id DESC";]]></add>
 		</operation>
-		<!-- <operation error="skip">
-			<search position="replace" offset="4"><![CDATA[if (isset($data['order']) && ($data['order'] == 'DESC')) {]]></search>
-			<add><![CDATA[
-		if (isset($data['order']) && ($data['order'] == 'DESC')) {
-			$sql .= " DESC, LCASE(pd.name) DESC";
-		} else if (isset($data['order']) && ($data['order'] == 'ASC')) {
-			$sql .= " ASC, LCASE(pd.name) ASC";
-		} else {
-			$sql .= " DESC , p.product_id DESC";
-		}
-				]]></add>
-		</operation> -->
 	</file>
 </modification>
